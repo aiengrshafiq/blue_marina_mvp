@@ -161,18 +161,7 @@ def mark_delivered(order_id: int, db: Session = Depends(get_db), current_user: m
         db.commit()
     return RedirectResponse(url="/dashboard", status_code=303)
 
-# --- Store Confirmation Route ---
-@router.post("/confirm-delivery/{order_id}")
-def confirm_delivery(order_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
-    if current_user.role != models.UserRole.store:
-        raise HTTPException(status_code=403, detail="Not authorized")
 
-    order = db.query(models.Order).filter(models.Order.id == order_id, models.Order.store_id == current_user.id).first()
-    if order and order.status == models.OrderStatus.DELIVERED:
-        # For MVP, we can just change the status. For Phase 2, this would close the order.
-        order.status = models.OrderStatus.PURCHASED # Or a new 'COMPLETED' status
-        db.commit()
-    return RedirectResponse(url="/dashboard", status_code=303)
 
 
 @router.post("/confirm-delivery/{order_id}")
