@@ -1,0 +1,22 @@
+<style>
+    .navbar {
+        background: #003366;
+        color: white;
+        padding: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .navbar h1 { margin: 0; font-size: 1.5em; }
+    .navbar a { color: white; text-decoration: none; font-weight: bold; }
+</style>
+<nav class="navbar">
+    <h1>🌀 Blue Marina</h1>
+    {% if user %}
+        <div>
+            <span>Welcome, <strong>{{ user.username }}</strong> ({{ user.role.value }})</span>
+            &nbsp;|&nbsp;
+            <a href="/dashboard">Dashboard</a>
+        </div>
+    {% endif %}
+</nav>

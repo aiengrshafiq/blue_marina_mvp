@@ -1,0 +1,26 @@
+{% extends "includes/base.html" %}
+{% block content %}
+<h2>Login</h2>
+
+<form action="/token" method="post">
+    <label for="username">Username:</label>
+    <input type="text" id="username" name="username" required>
+    
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" required>
+    
+    {% if request.query_params.get('error') %}
+        <p style="color:red;">Login failed. Please check your credentials.</p>
+    {% endif %}
+    
+    <button type="submit" class="btn btn-primary">Login</button>
+</form>
+
+<p style="margin-top:20px;">
+    <strong>Test Users:</strong><br>
+    Store: metro / password<br>
+    Purchaser: buyer1 / password<br>
+    Admin: admin / password
+</p>
+
+{% endblock %}

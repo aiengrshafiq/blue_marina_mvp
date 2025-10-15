@@ -1,0 +1,36 @@
+{% extends "includes/base.html" %}
+{% block content %}
+<h2>Store Dashboard (Welcome, {{ user.username }})</h2>
+<a href="/create-order" class="btn btn-primary">Create New Order</a>
+<h3>My Orders</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>Category</th>
+            <th>Qty</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for order in orders %}
+        <tr>
+            <td>{{ order.order_id_str }}</td>
+            <td>{{ order.category }}</td>
+            <td>{{ order.quantity }}</td>
+            <td><span class="status">{{ order.status.value }}</span></td>
+            <td>
+                {% if order.status.value == 'DELIVERED' %}
+                <form action="/confirm-delivery/{{order.id}}" method="post" style="display:inline;">
+                    <button type="submit" class="btn btn-success">Confirm Receipt</button>
+                </form>
+                {% else %}
+                -
+                {% endif %}
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

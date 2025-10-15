@@ -1,0 +1,44 @@
+{% extends "includes/base.html" %}
+{% block content %}
+<h2>Admin Dashboard</h2>
+<h3>All Orders</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>Store</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for order in orders %}
+        <tr>
+            <td>{{ order.order_id_str }}</td>
+            <td>{{ order.store.username }}</td>
+            <td><span class="status">{{ order.status.value }}</span></td>
+            <td>
+                {% if order.status.value == 'PENDING_APPROVAL' %}
+                <form action="/approve-order/{{order.id}}" method="post" style="display:inline;">
+                    <button type="submit" class="btn btn-success">Approve</button>
+                </form>
+                <form action="/reject-order/{{order.id}}" method="post" style="display:inline;">
+                    <button type="submit" class="btn btn-danger">Reject</button>
+                </form>
+                {% elif order.status.value == 'PURCHASED' %}
+                <form action="/dispatch-order/{{order.id}}" method="post" style="display:inline;">
+                    <button type="submit" class="btn btn-primary">Dispatch for Delivery</button>
+                </form>
+                {% elif order.status.value == 'OUT_FOR_DELIVERY' %}
+                <form action="/mark-delivered/{{order.id}}" method="post" style="display:inline;">
+                    <button type="submit" class="btn btn-success">Mark as Delivered</button>
+                </form>
+                {% else %}
+                -
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

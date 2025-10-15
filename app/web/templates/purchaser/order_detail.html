@@ -1,0 +1,21 @@
+{% extends "includes/base.html" %}
+{% block content %}
+<h2>Enter Purchase Details for Order: {{ order.order_id_str }}</h2>
+<a href="/dashboard" class="btn btn-primary" style="background-color:#6c757d; margin-bottom: 20px;">&larr; Back to Dashboard</a>
+
+<div>
+    <p><strong>Store:</strong> {{ order.store.username }}</p>
+    <p><strong>Category:</strong> {{ order.category }}</p>
+    <p><strong>Required Quantity:</strong> {{ order.quantity }}</p>
+    {% if order.status.value == 'REJECTED' %}
+        <p style="color: red; font-weight: bold;">This order was rejected by admin. Please re-submit with a new rate.</p>
+    {% endif %}
+</div>
+
+<form action="/submit-purchase/{{ order.id }}" method="post">
+    <label for="buy_rate">Your Buying Rate (per unit):</label>
+    <input type="number" step="0.01" id="buy_rate" name="buy_rate" required min="0">
+    
+    <button type="submit" class="btn btn-primary">Submit for Approval</button>
+</form>
+{% endblock %}

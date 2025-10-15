@@ -1,0 +1,31 @@
+{% extends "includes/base.html" %}
+{% block content %}
+<h2>Create a New Procurement Order</h2>
+<a href="/dashboard" class="btn btn-primary" style="background-color:#6c757d; margin-bottom: 20px;">&larr; Back to Dashboard</a>
+
+<form action="/create-order" method="post">
+    <label for="category">Category:</label>
+    <select id="category" name="category" required>
+        <option value="Fish">Fish</option>
+        <option value="Meat">Meat</option>
+        <option value="Produce">Produce</option>
+        <option value="Dairy">Dairy</option>
+    </select>
+
+    <label for="quantity">Quantity (in kg or units):</label>
+    <input type="number" id="quantity" name="quantity" required min="1">
+
+    <label for="delivery_time">Expected Delivery Time:</label>
+    <input type="datetime-local" id="delivery_time" name="delivery_time" required>
+
+    <button type="submit" class="btn btn-primary">Submit Order</button>
+</form>
+
+<script>
+    // Set a default value for the datetime input to be 1 day from now
+    const now = new Date();
+    now.setDate(now.getDate() + 1);
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    document.getElementById('delivery_time').value = now.toISOString().slice(0, 16);
+</script>
+{% endblock %}
