@@ -1,39 +1,51 @@
-# .github/workflows/main.yml
-name: Build and Deploy to Azure Container Apps
+name: Build and Deploy Blue Marina to Azure Container Apps
 
 on:
   push:
     branches:
-      - main
+      - main  # Trigger this workflow on every push to the main branch
+
+env:
+  # IMPORTANT: Replace these values with your actual Azure resource names
+  ACR_NAME: 'bluemarinaacr'
+  IMAGE_NAME: 'blue-marina-mvp'
+  RESOURCE_GROUP: 'bluemarina_rg'
+  CONTAINER_APP_NAME: 'bluemarina-app'
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: 'Checkout Github Action'
-        uses: actions/checkout@v2
+    - name: 'Checkout code'
+      uses: actions/checkout@v4
 
-      - name: 'Login to Azure'
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+    - name: 'Login to Azure'
+      uses: azure/login@v2
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: 'Login to Azure Container Registry'
-        uses: azure/docker-login@v1
-        with:
-          login-server: ${{ secrets.ACR_NAME }}.azurecr.io
-          username: ${{ secrets.ACR_USERNAME }}
-          password: ${{ secrets.ACR_PASSWORD }}
+    - name: 'Login to Azure Container Registry'
+      uses: azure/docker-login@v1
+      with:
+        login-server: ${{ env.ACR_NAME }}.azurecr.io
+        username: ${{ secrets.ACR_USERNAME }}
+        password: ${{ secrets.ACR_PASSWORD }}
 
-      - name: 'Build and push image'
-        run: |
-          docker build . -t ${{ secrets.ACR_NAME }}.azurecr.io/bluemarina-mvp:${{ github.sha }}
-          docker push ${{ secrets.ACR_NAME }}.azurecr.io/bluemarina-mvp:${{ github.sha }}
+    - name: 'Build and Push Docker image'
+      run: |
+        docker build . -t ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
+        docker push ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
 
-      - name: 'Deploy to Azure Container Apps'
-        uses: azure/container-apps-deploy@v1
-        with:
-          containerAppName: ${{ secrets.CONTAINER_APP_NAME }}
-          resourceGroup: ${{ secrets.RESOURCE_GROUP }}
-          imageToDeploy: ${{ secrets.ACR_NAME }}.azurecr.io/bluemarina-mvp:${{ github.sha }}
-          environmentVariables: 'DATABASE_URL=${{ secrets.DATABASE_URL }} SECRET_KEY=${{ secrets.SECRET_KEY }}'
+    - name: 'Deploy to Azure Container App'
+      uses: azure/container-apps-deploy-action@v1
+      with:
+        imageToDeploy: ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
+        containerAppName: ${{ env.CONTAINER_APP_NAME }}
+        resourceGroup: ${{ env.RESOURCE_GROUP }}
+        # Pass all necessary secrets from GitHub to the Container App as environment variables
+        environmentVariables: |
+          DATABASE_URL=${{ secrets.DATABASE_URL }}
+          SECRET_KEY=${{ secrets.SECRET_KEY }}
+          ALGORITHM=HS256
+          ACCESS_TOKEN_EXPIRE_MINUTES=30
