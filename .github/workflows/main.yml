@@ -43,9 +43,4 @@ jobs:
         imageToDeploy: ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
         containerAppName: ${{ env.CONTAINER_APP_NAME }}
         resourceGroup: ${{ env.RESOURCE_GROUP }}
-        # Pass all necessary secrets from GitHub to the Container App as environment variables
-        environmentVariables: |
-          DATABASE_URL=${{ secrets.DATABASE_URL }}
-          SECRET_KEY=${{ secrets.SECRET_KEY }}
-          ALGORITHM=HS256
-          ACCESS_TOKEN_EXPIRE_MINUTES=30
+        
