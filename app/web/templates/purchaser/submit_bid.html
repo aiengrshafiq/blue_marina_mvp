@@ -1,0 +1,18 @@
+{% extends "includes/base.html" %}
+{% block content %}
+<h2>Place Bid for: {{ line_item.article.name }}</h2>
+<p><strong>PO Number:</strong> {{ line_item.purchase_order.po_number }}</p>
+<p><strong>Requested Quantity:</strong> {{ line_item.requested_quantity }} {{ line_item.article.unit }}</p>
+
+<form action="/bid/{{ line_item.id }}" method="post" enctype="multipart/form-data">
+    <label for="bid_rate">Your Bid Rate (per {{ line_item.article.unit }}):</label>
+    <input type="number" step="0.01" id="bid_rate" name="bid_rate" required>
+    
+    <label for="proof_photo">Attach Photo Proof (Bill/Slip):</label>
+    <input type="file" id="proof_photo" name="proof_photo" required accept="image/*">
+
+    <button type="submit" class="btn btn-primary">Submit Bid</button>
+</form>
+
+<a href="/dashboard" class="btn btn-primary" style="background-color:#6c757d;">&larr; Back to Dashboard</a>
+{% endblock %}

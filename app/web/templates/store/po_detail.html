@@ -1,0 +1,52 @@
+{% extends "includes/base.html" %}
+{% block content %}
+<h2>Purchase Order Details: {{ po.po_number }}</h2>
+<p><strong>Status:</strong> <span class="status">{{ po.status }}</span></p>
+
+{% for item in po.line_items %}
+<div class="line-item-card" style="border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 5px;">
+    <h4>{{ item.article.name }} - Requested: {{ item.requested_quantity }} {{ item.article.unit }}</h4>
+    <p><strong>Store Locked Rate:</strong> {{ "%.2f"|format(item.locked_rate) }}</p>
+
+    {% if item.bids %}
+    <h5>Bids Received</h5>
+    <table>
+        <thead>
+            <tr>
+                <th>Purchaser</th>
+                <th>Bid Rate</th>
+                <th>Proof</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for bid in item.bids %}
+            <tr style="{% if bid.status == 'RECOMMENDED' %}background-color: #d4edda;{% endif %}">
+                <td>{{ bid.purchaser.username }}</td>
+                <td>{{ "%.2f"|format(bid.bid_rate) }}</td>
+                <td><a href="{{ bid.proof_photo_url }}" target="_blank">View</a></td>
+                <td><span class="status">{{ bid.status }}</span></td>
+                <td>
+                    {% if bid.status == 'RECOMMENDED' and po.status == 'PENDING_BIDS' %}
+                    <form action="/approve-bid/{{ bid.id }}" method="post">
+                        <button type="submit" class="btn btn-success">Approve Bid</button>
+                    </form>
+                    {% elif bid.status == 'APPROVED' %}
+                        <strong>Approved</strong>
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No bids received for this item yet.</p>
+    {% endif %}
+</div>
+{% endfor %}
+
+<a href="/dashboard" class="btn btn-primary" style="background-color:#6c757d;">&larr; Back to Dashboard</a>
+{% endblock %}

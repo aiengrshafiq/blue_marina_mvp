@@ -10,6 +10,8 @@ from app.db.base import get_db, engine
 from app.web.routes import router as web_router
 from app.auth import create_access_token, get_password_hash, verify_password
 
+from app.core.config import ARTICLES
+
 # Create database tables on startup
 models.Base.metadata.create_all(bind=engine)
 
@@ -27,7 +29,7 @@ async def login_for_access_token(response: RedirectResponse, form_data: OAuth2Pa
         return RedirectResponse(url="/login?error=1", status_code=status.HTTP_302_FOUND)
 
     access_token = create_access_token(
-        data={"sub": user.username, "role": user.role.value}
+        data={"sub": user.username, "role": user.role}
     )
     
     # Create a redirect response to the dashboard
@@ -42,17 +44,23 @@ app.include_router(web_router)
 
 # --- On-the-fly User Creation for MVP ---
 @app.on_event("startup")
-def create_initial_users():
+def seed_initial_data():
     db = next(get_db())
     # ... (user creation logic remains the same)
     if not db.query(models.User).filter(models.User.username == "metro").first():
-        user = models.User(username="metro", hashed_password=get_password_hash("password"), role=models.UserRole.store)
+        user = models.User(username="metro", hashed_password=get_password_hash("password"), role=models.UserRole.store.value)
         db.add(user)
     if not db.query(models.User).filter(models.User.username == "buyer1").first():
-        user = models.User(username="buyer1", hashed_password=get_password_hash("password"), role=models.UserRole.purchaser)
+        user = models.User(username="buyer1", hashed_password=get_password_hash("password"), role=models.UserRole.purchaser.value)
         db.add(user)
     if not db.query(models.User).filter(models.User.username == "admin").first():
-        user = models.User(username="admin", hashed_password=get_password_hash("password"), role=models.UserRole.admin)
+        user = models.User(username="admin", hashed_password=get_password_hash("password"), role=models.UserRole.admin.value)
         db.add(user)
+
+    if db.query(models.Article).count() == 0:
+        for article_data in ARTICLES:
+            article = models.Article(**article_data)
+            db.add(article)
+
     db.commit()
     db.close()

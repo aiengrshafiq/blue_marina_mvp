@@ -1,0 +1,104 @@
+{% extends "includes/base.html" %}
+{% block content %}
+<h2>Create New Purchase Order (LPO)</h2>
+
+<template id="item-row-template">
+    <tr>
+        <td>
+            <select name="article_" class="article-select" required>
+                <option value="" disabled selected>Select an article...</option>
+                {% for article in articles %}
+                <option value="{{ article.article_number }}">{{ article.name }}</option>
+                {% endfor %}
+            </select>
+        </td>
+        <td>
+            <input type="number" name="quantity_" class="quantity-input" step="0.01" placeholder="0.0" required>
+        </td>
+        <td>
+            <input type="number" name="rate_" class="rate-input" step="0.01" placeholder="0.00" required>
+        </td>
+        <td>
+            <span class="amount-display">0.00</span>
+        </td>
+        <td>
+            <button type="button" class="btn btn-danger remove-row-btn">Remove</button>
+        </td>
+    </tr>
+</template>
+
+<form action="/create-po" method="post">
+    <table id="po-items-table">
+        <thead>
+            <tr>
+                <th>Article / Product</th>
+                <th>Qty</th>
+                <th>Rate</th>
+                <th>Amount</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="items-tbody">
+            </tbody>
+    </table>
+
+    <div style="margin-top: 20px;">
+        <button type="button" id="add-item-btn" class="btn btn-primary">Add Item</button>
+        <button type="submit" class="btn btn-success" style="float: right;">Submit Purchase Order</button>
+    </div>
+</form>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const addItemBtn = document.getElementById('add-item-btn');
+        const itemsTbody = document.getElementById('items-tbody');
+        const template = document.getElementById('item-row-template');
+
+        // Function to calculate the amount for a given row
+        function calculateAmount(row) {
+            const quantityInput = row.querySelector('.quantity-input');
+            const rateInput = row.querySelector('.rate-input');
+            const amountDisplay = row.querySelector('.amount-display');
+
+            const quantity = parseFloat(quantityInput.value) || 0;
+            const rate = parseFloat(rateInput.value) || 0;
+            const amount = quantity * rate;
+
+            amountDisplay.textContent = amount.toFixed(2);
+        }
+
+        // Function to update the name attributes with correct indices
+        function updateRowIndices() {
+            const rows = itemsTbody.querySelectorAll('tr');
+            rows.forEach((row, index) => {
+                row.querySelector('.article-select').name = `article_${index}`;
+                row.querySelector('.quantity-input').name = `quantity_${index}`;
+                row.querySelector('.rate-input').name = `rate_${index}`;
+            });
+        }
+        
+        // Function to add a new row
+        function addRow() {
+            const clone = template.content.cloneNode(true);
+            const newRow = clone.querySelector('tr');
+            itemsTbody.appendChild(newRow);
+            
+            // Add event listeners for calculation and removal
+            newRow.querySelector('.quantity-input').addEventListener('input', () => calculateAmount(newRow));
+            newRow.querySelector('.rate-input').addEventListener('input', () => calculateAmount(newRow));
+            newRow.querySelector('.remove-row-btn').addEventListener('click', () => {
+                newRow.remove();
+                updateRowIndices();
+            });
+
+            updateRowIndices();
+        }
+
+        // Add the first row when the page loads
+        addRow();
+
+        // Add a new row when the "Add Item" button is clicked
+        addItemBtn.addEventListener('click', addRow);
+    });
+</script>
+{% endblock %}

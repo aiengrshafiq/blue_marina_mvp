@@ -1,65 +1,26 @@
 {% extends "includes/base.html" %}
 {% block content %}
 <h2>Purchaser Dashboard (Welcome, {{ user.username }})</h2>
-
-<h3>Available Orders (Order Pool)</h3>
+<h3>Available Items for Bidding</h3>
 <table>
     <thead>
         <tr>
-            <th>Order ID</th>
-            <th>Store</th>
-            <th>Category</th>
+            <th>PO Number</th>
+            <th>Article</th>
             <th>Required Qty</th>
             <th>Action</th>
         </tr>
     </thead>
     <tbody>
-    {% for order in orders %}
-        {% if order.status.value == 'PENDING_PURCHASE' %}
+    {% for item in line_items %}
         <tr>
-            <td>{{ order.order_id_str }}</td>
-            <td>{{ order.store.username }}</td>
-            <td>{{ order.category }}</td>
-            <td>{{ order.quantity }}</td>
+            <td>{{ item.purchase_order.po_number }}</td>
+            <td>{{ item.article.name }}</td>
+            <td>{{ item.requested_quantity }} {{ item.article.unit }}</td>
             <td>
-                <form action="/accept-order/{{ order.id }}" method="post" class="inline-form">
-                    <button type="submit" class="btn btn-success">Accept</button>
-                </form>
+                <a href="/bid/{{ item.id }}" class="btn btn-primary">Place Bid</a>
             </td>
         </tr>
-        {% endif %}
-    {% endfor %}
-    </tbody>
-</table>
-
-<h3 style="margin-top: 40px;">My Active Orders</h3>
-<table>
-    <thead>
-        <tr>
-            <th>Order ID</th>
-            <th>Store</th>
-            <th>Category</th>
-            <th>Status</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody>
-    {% for order in orders %}
-        {% if order.purchaser_id == user.id %}
-        <tr>
-            <td>{{ order.order_id_str }}</td>
-            <td>{{ order.store.username }}</td>
-            <td>{{ order.category }}</td>
-            <td>{{ order.status.value }}</td>
-            <td>
-                {% if order.status.value in ['PENDING_PURCHASE', 'REJECTED'] %}
-                    <a href="/order/{{ order.id }}" class="btn btn-primary">Enter Buying Rate</a>
-                {% else %}
-                    -
-                {% endif %}
-            </td>
-        </tr>
-        {% endif %}
     {% endfor %}
     </tbody>
 </table>

@@ -1,44 +1,27 @@
 {% extends "includes/base.html" %}
 {% block content %}
-<h2>Admin Dashboard</h2>
-<h3>All Orders</h3>
+<h2>Admin Dashboard (Logistics Management)</h2>
+<h3>Purchase Orders Ready for Dispatch</h3>
 <table>
     <thead>
         <tr>
-            <th>Order ID</th>
+            <th>PO Number</th>
             <th>Store</th>
             <th>Status</th>
             <th>Action</th>
         </tr>
     </thead>
     <tbody>
-        {% for order in orders %}
+    {% for po in purchase_orders %}
         <tr>
-            <td>{{ order.order_id_str }}</td>
-            <td>{{ order.store.username }}</td>
-            <td><span class="status">{{ order.status.value }}</span></td>
+            <td>{{ po.po_number }}</td>
+            <td>{{ po.store.username }}</td>
+            <td><span class="status">{{ po.status }}</span></td>
             <td>
-                {% if order.status.value == 'PENDING_APPROVAL' %}
-                <form action="/approve-order/{{order.id}}" method="post" style="display:inline;">
-                    <button type="submit" class="btn btn-success">Approve</button>
-                </form>
-                <form action="/reject-order/{{order.id}}" method="post" style="display:inline;">
-                    <button type="submit" class="btn btn-danger">Reject</button>
-                </form>
-                {% elif order.status.value == 'PURCHASED' %}
-                <form action="/dispatch-order/{{order.id}}" method="post" style="display:inline;">
-                    <button type="submit" class="btn btn-primary">Dispatch for Delivery</button>
-                </form>
-                {% elif order.status.value == 'OUT_FOR_DELIVERY' %}
-                <form action="/mark-delivered/{{order.id}}" method="post" style="display:inline;">
-                    <button type="submit" class="btn btn-success">Mark as Delivered</button>
-                </form>
-                {% else %}
-                -
-                {% endif %}
+                <a href="/po/{{ po.id }}/logistics" class="btn btn-primary">Manage Logistics</a>
             </td>
         </tr>
-        {% endfor %}
+    {% endfor %}
     </tbody>
 </table>
 {% endblock %}

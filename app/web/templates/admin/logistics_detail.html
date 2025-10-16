@@ -1,0 +1,55 @@
+{% extends "includes/base.html" %}
+{% block content %}
+<h2>Manage Logistics for PO: {{ po.po_number }}</h2>
+<p><strong>Status:</strong> <span class="status">{{ po.status }}</span></p>
+
+<div class="card" style="border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 5px;">
+    <h4>1. Assign Driver & Schedule Pickup</h4>
+    {% if po.status == 'APPROVED' %}
+    <form action="/po/{{ po.id }}/assign-driver" method="post">
+        <label for="assigned_driver">Driver Name:</label>
+        <input type="text" name="assigned_driver" required>
+        <label for="pickup_time">Pickup Time:</label>
+        <input type="datetime-local" name="pickup_time" required>
+        <button type="submit" class="btn btn-primary">Assign</button>
+    </form>
+    {% else %}
+    <p><strong>Driver:</strong> {{ po.assigned_driver }}</p>
+    <p><strong>Pickup Time:</strong> {{ po.pickup_time.strftime('%Y-%m-%d %H:%M') if po.pickup_time }}</p>
+    {% endif %}
+</div>
+
+<div class="card" style="border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 5px;">
+    <h4>2. Pickup Quality Check 📸</h4>
+    {% if po.status == 'IN_LOGISTICS' and not po.pickup_photo_url %}
+    <form action="/po/{{ po.id }}/upload-proof" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="proof_type" value="pickup">
+        <label for="photo">Upload Pickup Photo:</label>
+        <input type="file" name="photo" required accept="image/*">
+        <button type="submit" class="btn btn-primary">Upload Proof</button>
+    </form>
+    {% elif po.pickup_photo_url %}
+    <p>Pickup photo uploaded successfully. <a href="{{ po.pickup_photo_url }}" target="_blank">View Photo</a></p>
+    {% else %}
+    <p>Assign a driver first.</p>
+    {% endif %}
+</div>
+
+<div class="card" style="border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 5px;">
+    <h4>3. Delivery Handover ✅</h4>
+    {% if po.pickup_photo_url and not po.delivery_photo_url %}
+    <form action="/po/{{ po.id }}/upload-proof" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="proof_type" value="delivery">
+        <label for="photo">Upload Delivery Photo:</label>
+        <input type="file" name="photo" required accept="image/*">
+        <button type="submit" class="btn btn-success">Confirm Delivery</button>
+    </form>
+    {% elif po.delivery_photo_url %}
+    <p>Delivery photo uploaded. Order is now marked as DELIVERED. <a href="{{ po.delivery_photo_url }}" target="_blank">View Photo</a></p>
+    {% else %}
+    <p>Complete pickup QC first.</p>
+    {% endif %}
+</div>
+
+<a href="/dashboard" class="btn btn-primary" style="background-color:#6c757d;">&larr; Back to Dashboard</a>
+{% endblock %}
