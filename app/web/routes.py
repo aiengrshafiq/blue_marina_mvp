@@ -32,11 +32,21 @@ def dashboard(request: Request, db: Session = Depends(get_db), current_user: mod
         purchase_orders = db.query(models.PurchaseOrder).filter(models.PurchaseOrder.store_id == current_user.id).all()
         return templates.TemplateResponse("store/dashboard.html", {"request": request, "purchase_orders": purchase_orders, "user": current_user})
     
-    if current_user.role == "purchaser":
-        # Show line items that are pending bids
-        line_items = db.query(models.OrderLineItem).options(joinedload(models.OrderLineItem.purchase_order), joinedload(models.OrderLineItem.article)).filter(models.PurchaseOrder.status == 'PENDING_BIDS').all()
-        return templates.TemplateResponse("purchaser/dashboard.html", {"request": request, "line_items": line_items, "user": current_user})
+    # if current_user.role == "purchaser":
+    #     # Show line items that are pending bids
+    #     line_items = db.query(models.OrderLineItem).options(joinedload(models.OrderLineItem.purchase_order), joinedload(models.OrderLineItem.article)).filter(models.PurchaseOrder.status == 'PENDING_BIDS').all()
+    #     return templates.TemplateResponse("purchaser/dashboard.html", {"request": request, "line_items": line_items, "user": current_user})
     
+    if current_user.role == "purchaser":
+        # THE FIX: Add a .join(models.PurchaseOrder) to connect the tables correctly.
+        line_items = db.query(models.OrderLineItem).options(
+            joinedload(models.OrderLineItem.purchase_order), 
+            joinedload(models.OrderLineItem.article)
+        ).join(models.PurchaseOrder).filter(
+            models.PurchaseOrder.status == 'PENDING_BIDS'
+        ).all()
+        return templates.TemplateResponse("purchaser/dashboard.html", {"request": request, "line_items": line_items, "user": current_user})
+
     if current_user.role == "admin":
         # Show POs ready for logistics
         approved_pos = db.query(models.PurchaseOrder).filter(models.PurchaseOrder.status == 'APPROVED').all()
@@ -408,7 +418,8 @@ def rates_manager_page(
 
     # Get current week and year
     current_week = date.today().isocalendar()[1]
-    current_year = date.today().year()
+    #current_year = date.today().year()
+    current_year = date.today().year
 
     # Fetch rates for the current week
     rates = db.query(models.WeeklyRateLock).filter(
@@ -441,7 +452,7 @@ def handle_add_rate(
         return RedirectResponse(url="/dashboard")
 
     current_week = date.today().isocalendar()[1]
-    current_year = date.today().year()
+    current_year = date.today().year
 
     # Check if a rate for this article and week already exists to prevent duplicates
     existing_rate = db.query(models.WeeklyRateLock).filter(
