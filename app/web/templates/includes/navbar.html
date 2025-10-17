@@ -16,6 +16,10 @@
     {% if user %}
         <div class="navbar-right">
             <span>Welcome, <strong>{{ user.username }}</strong> (Role: {{ user.role }})</span>
+             {% if user.role == 'admin' %}
+             <a href="/rates-manager">Rates Manager</a>
+                <a href="/summary-report">Summary Report</a>
+            {% endif %}
             <a href="/dashboard">Dashboard</a>
             <a href="/logout">Logout</a>
         </div>

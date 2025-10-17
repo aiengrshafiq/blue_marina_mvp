@@ -1,6 +1,7 @@
 {% extends "includes/base.html" %}
 {% block content %}
 <h2>Create New Purchase Order (LPO)</h2>
+<p>Enter the quantities for the articles you wish to order. The rates are locked weekly by the admin.</p>
 
 <template id="item-row-template">
     <tr>
@@ -16,12 +17,6 @@
             <input type="number" name="quantity_" class="quantity-input" step="0.01" placeholder="0.0" required>
         </td>
         <td>
-            <input type="number" name="rate_" class="rate-input" step="0.01" placeholder="0.00" required>
-        </td>
-        <td>
-            <span class="amount-display">0.00</span>
-        </td>
-        <td>
             <button type="button" class="btn btn-danger remove-row-btn">Remove</button>
         </td>
     </tr>
@@ -33,8 +28,6 @@
             <tr>
                 <th>Article / Product</th>
                 <th>Qty</th>
-                <th>Rate</th>
-                <th>Amount</th>
                 <th>Action</th>
             </tr>
         </thead>
@@ -54,26 +47,12 @@
         const itemsTbody = document.getElementById('items-tbody');
         const template = document.getElementById('item-row-template');
 
-        // Function to calculate the amount for a given row
-        function calculateAmount(row) {
-            const quantityInput = row.querySelector('.quantity-input');
-            const rateInput = row.querySelector('.rate-input');
-            const amountDisplay = row.querySelector('.amount-display');
-
-            const quantity = parseFloat(quantityInput.value) || 0;
-            const rate = parseFloat(rateInput.value) || 0;
-            const amount = quantity * rate;
-
-            amountDisplay.textContent = amount.toFixed(2);
-        }
-
         // Function to update the name attributes with correct indices
         function updateRowIndices() {
             const rows = itemsTbody.querySelectorAll('tr');
             rows.forEach((row, index) => {
                 row.querySelector('.article-select').name = `article_${index}`;
                 row.querySelector('.quantity-input').name = `quantity_${index}`;
-                row.querySelector('.rate-input').name = `rate_${index}`;
             });
         }
         
@@ -83,15 +62,13 @@
             const newRow = clone.querySelector('tr');
             itemsTbody.appendChild(newRow);
             
-            // Add event listeners for calculation and removal
-            newRow.querySelector('.quantity-input').addEventListener('input', () => calculateAmount(newRow));
-            newRow.querySelector('.rate-input').addEventListener('input', () => calculateAmount(newRow));
+            // Add an event listener to the new row's remove button
             newRow.querySelector('.remove-row-btn').addEventListener('click', () => {
                 newRow.remove();
-                updateRowIndices();
+                updateRowIndices(); // Re-index the remaining rows
             });
 
-            updateRowIndices();
+            updateRowIndices(); // Index the new row correctly
         }
 
         // Add the first row when the page loads

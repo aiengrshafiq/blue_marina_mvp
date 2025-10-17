@@ -51,8 +51,10 @@ class PurchaseOrder(Base):
     # --- ADD THESE NEW LOGISTICS FIELDS ---
     assigned_driver = Column(String, nullable=True)
     pickup_time = Column(DateTime, nullable=True)
+    pickup_temperature = Column(Float, nullable=True)
     pickup_photo_url = Column(String, nullable=True)
     delivery_photo_url = Column(String, nullable=True)
+    grn_notes = Column(String, nullable=True)
     # ------------------------------------
     
     store = relationship("User")
@@ -84,3 +86,14 @@ class Bid(Base):
     
     line_item = relationship("OrderLineItem", back_populates="bids")
     purchaser = relationship("User")
+
+class WeeklyRateLock(Base):
+    __tablename__ = "weekly_rate_locks"
+    id = Column(Integer, primary_key=True, index=True)
+    article_id = Column(Integer, ForeignKey("articles.id"), nullable=False)
+    selling_rate = Column(Float, nullable=False)
+    week_number = Column(Integer, nullable=False) # e.g., 42 for the 42nd week of the year
+    year = Column(Integer, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    article = relationship("Article")

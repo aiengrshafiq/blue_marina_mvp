@@ -2,6 +2,11 @@
 {% block content %}
 <h2>Manage Logistics for PO: {{ po.po_number }}</h2>
 <p><strong>Status:</strong> <span class="status">{{ po.status }}</span></p>
+{% if po.status == 'COMPLETED' %}
+<div style="background-color: #d4edda; border-color: #c3e6cb; color: #155724; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+    <strong>Order Confirmed!</strong> The store has acknowledged receipt of this delivery.
+</div>
+{% endif %}
 
 <div class="card" style="border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 5px;">
     <h4>1. Assign Driver & Schedule Pickup</h4>
@@ -24,6 +29,8 @@
     {% if po.status == 'IN_LOGISTICS' and not po.pickup_photo_url %}
     <form action="/po/{{ po.id }}/upload-proof" method="post" enctype="multipart/form-data">
         <input type="hidden" name="proof_type" value="pickup">
+        <label for="pickup_temperature">Temperature (°C):</label>
+        <input type="number" step="0.1" name="pickup_temperature" placeholder="e.g., 4.5">
         <label for="photo">Upload Pickup Photo:</label>
         <input type="file" name="photo" required accept="image/*">
         <button type="submit" class="btn btn-primary">Upload Proof</button>
@@ -50,6 +57,18 @@
     <p>Complete pickup QC first.</p>
     {% endif %}
 </div>
-
+<div class="card" style="border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 5px; border-color: #17a2b8;">
+    <h4>4. Finance Summary 💰</h4>
+    {% if po.status == 'DELIVERED' or po.status == 'COMPLETED' %}
+        <p><strong>Total Purchaser Payout:</strong> {{ "%.2f"|format(total_payout) }}</p>
+        <p><strong>Total Store Invoice:</strong> {{ "%.2f"|format(total_invoice) }}</p>
+        <p><strong>Net Margin:</strong> {{ "%.2f"|format(total_invoice - total_payout) }}</p>
+    {% else %}
+        <p>Complete the delivery process to view the financial summary.</p>
+    {% endif %}
+</div>
 <a href="/dashboard" class="btn btn-primary" style="background-color:#6c757d;">&larr; Back to Dashboard</a>
 {% endblock %}
+
+<!-- <a href="/dashboard" class="btn btn-primary" style="background-color:#6c757d;">&larr; Back to Dashboard</a>
+{% endblock %} -->

@@ -1,0 +1,42 @@
+{% extends "includes/base.html" %}
+{% block content %}
+<h2>Weekly Rates Manager (Week: {{ current_week }})</h2>
+<p>This page shows the official selling rates locked for the current week.</p>
+
+<div class="card" style="border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 5px;">
+    <h4>Add New Rate for this Week</h4>
+    <form action="/add-rate" method="post">
+        <select name="article_id" required>
+            <option value="" disabled selected>Select an article...</option>
+            {% for article in all_articles %}
+            <option value="{{ article.id }}">{{ article.name }}</option>
+            {% endfor %}
+        </select>
+        <input type="number" step="0.01" name="selling_rate" placeholder="Selling Rate" required>
+        <button type="submit" class="btn btn-primary">Add Rate</button>
+    </form>
+</div>
+
+<div class="card" style="border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 5px;">
+    <h4>Current Weekly Rates</h4>
+    <table>
+        <thead>
+            <tr>
+                <th>Article</th>
+                <th>Selling Rate</th>
+                <th>Set At</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for rate in rates %}
+            <tr>
+                <td>{{ rate.article.name }}</td>
+                <td>{{ "%.2f"|format(rate.selling_rate) }}</td>
+                <td>{{ rate.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

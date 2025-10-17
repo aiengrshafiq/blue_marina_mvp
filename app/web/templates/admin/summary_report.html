@@ -1,0 +1,55 @@
+{% extends "includes/base.html" %}
+{% block content %}
+<h2>Overall Performance Summary</h2>
+<p>This report includes all purchase orders that have been delivered or completed.</p>
+
+<style>
+    .summary-card-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+    }
+    .summary-card {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 20px;
+        text-align: center;
+    }
+    .summary-card h3 {
+        margin: 0 0 10px 0;
+        font-size: 1.2em;
+        color: #495057;
+    }
+    .summary-card .value {
+        font-size: 2.5em;
+        font-weight: bold;
+        color: #003366;
+    }
+</style>
+
+<div class="summary-card-container">
+    <div class="summary-card">
+        <h3>Total Completed POs</h3>
+        <p class="value">{{ summary.total_pos }}</p>
+    </div>
+    <div class="summary-card">
+        <h3>Total Revenue (Invoice)</h3>
+        <p class="value">{{ "%.2f"|format(summary.total_revenue) }}</p>
+    </div>
+    <div class="summary-card">
+        <h3>Total Cost (Payout)</h3>
+        <p class="value">{{ "%.2f"|format(summary.total_cost) }}</p>
+    </div>
+    <div class="summary-card">
+        <h3>Net Margin (Amount)</h3>
+        <p class="value">{{ "%.2f"|format(summary.net_margin_amount) }}</p>
+    </div>
+    <div class="summary-card">
+        <h3>Net Margin (%)</h3>
+        <p class="value">{{ "%.1f"|format(summary.net_margin_percent) }}%</p>
+    </div>
+</div>
+
+{% endblock %}

@@ -19,7 +19,19 @@
             <td>{{ po.status }}</td>
             <td>{{ po.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
             <td>
+               {% if po.status == 'DELIVERED' %}
+                <form action="/po/{{ po.id }}/confirm-receipt" method="post">
+                    <div style="display: flex; flex-direction: column; gap: 5px;">
+                        <input type="text" name="notes" placeholder="Optional notes for rejection...">
+                        <div>
+                            <button type="submit" name="action" value="accept" class="btn btn-success">Accept ✅</button>
+                            <button type="submit" name="action" value="reject" class="btn btn-danger">Reject ❌</button>
+                        </div>
+                    </div>
+                </form>
+            {% else %}
                 <a href="/po/{{ po.id }}" class="btn btn-primary">View Details</a>
+            {% endif %}
             </td>
         </tr>
     {% endfor %}

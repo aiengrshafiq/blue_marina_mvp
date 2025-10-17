@@ -15,6 +15,7 @@
             <tr>
                 <th>Purchaser</th>
                 <th>Bid Rate</th>
+                <th>Margin</th>
                 <th>Proof</th>
                 <th>Status</th>
                 <th>Action</th>
@@ -22,9 +23,18 @@
         </thead>
         <tbody>
             {% for bid in item.bids %}
-            <tr style="{% if bid.status == 'RECOMMENDED' %}background-color: #d4edda;{% endif %}">
+            {% set margin = ((item.locked_rate - bid.bid_rate) / item.locked_rate) * 100 if item.locked_rate > 0 else 0 %}
+            
+            <tr class="
+                {% if bid.status == 'RECOMMENDED' %}margin-high
+                {% elif margin >= 30 %}margin-high
+                {% elif margin >= 10 %}margin-normal
+                {% else %}margin-low
+                {% endif %}
+                " style="{% if bid.status == 'RECOMMENDED' %}background-color: #d4edda;{% endif %}">
                 <td>{{ bid.purchaser.username }}</td>
                 <td>{{ "%.2f"|format(bid.bid_rate) }}</td>
+                <td><strong>{{ bid.margin_percent }}</strong></td>
                 <td><a href="{{ bid.proof_photo_url }}" target="_blank">View</a></td>
                 <td><span class="status">{{ bid.status }}</span></td>
                 <td>
